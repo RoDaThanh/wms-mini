@@ -47,6 +47,18 @@
       <version>4.7.4</version>
       <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.glassfish</groupId>
+      <artifactId>jakarta.faces</artifactId>
+      <version>2.3.9</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.primefaces</groupId>
+      <artifactId>primefaces</artifactId>
+      <version>8.0</version>
+      <classifier>jakarta</classifier>
+    </dependency>
   </dependencies>
 
   <build>

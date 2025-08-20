@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui">
+<h:head><title>Item Management</title></h:head>
+<h:body>
+    <h:form>
+        <h:panelGrid columns="2">
+            <h:outputLabel for="sku" value="SKU:" />
+            <h:inputText id="sku" value="#{itemBean.sku}" />
+
+            <h:outputLabel for="desc" value="name:" />
+            <h:inputText id="desc" value="#{itemBean.name}" />
+
+            <h:commandButton value="Add Item" action="#{itemBean.addItem}" />
+        </h:panelGrid>
+    </h:form>
+
+    <p:dataTable value="#{itemBean.items}" var="item">
+        <p:column headerText="ID">#{item.id}</p:column>
+        <p:column headerText="SKU">#{item.sku}</p:column>
+        <p:column headerText="Description">#{item.name}</p:column>
+    </p:dataTable>
+</h:body>
+</html>

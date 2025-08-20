@@ -1,0 +1,26 @@
+<web-app  xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          version="2.3"
+          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                                  http://xmlns.jcp.org/xml/ns/javaee/web-facesconfig_2_3.xsd">
+
+    <display-name>Enterprise Logistics MVP</display-name>
+
+    <!-- Map JSF servlet to *.xhtml -->
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.xhtml</url-pattern>
+    </servlet-mapping>
+
+    <!-- Optional: welcome page -->
+    <welcome-file-list>
+        <welcome-file>pages/item.xhtml</welcome-file>
+    </welcome-file-list>
+
+</web-app>
