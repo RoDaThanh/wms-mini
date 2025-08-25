@@ -8,8 +8,8 @@
             <h:outputLabel for="sku" value="SKU:" />
             <h:inputText id="sku" value="#{itemBean.sku}" />
 
-            <h:outputLabel for="desc" value="name:" />
-            <h:inputText id="desc" value="#{itemBean.name}" />
+            <h:outputLabel for="name" value="name:" />
+            <h:inputText id="name" value="#{itemBean.name}" />
 
             <h:commandButton value="Add Item" action="#{itemBean.addItem}" />
         </h:panelGrid>
@@ -17,8 +17,8 @@
 
     <p:dataTable value="#{itemBean.items}" var="item">
         <p:column headerText="ID">#{item.id}</p:column>
-        <p:column headerText="SKU">#{item.sku}</p:column>
-        <p:column headerText="Description">#{item.name}</p:column>
+        <p:column headerText="SKU">#{item.SKU}</p:column>
+        <p:column headerText="name">#{item.name}</p:column>
     </p:dataTable>
 </h:body>
 </html>
