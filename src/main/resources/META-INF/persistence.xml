@@ -1,6 +1,13 @@
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence" version="2.1">
     <persistence-unit name="elmsPU" transaction-type="JTA">
-        <jta-data-source>java:/jdbc/ELMSDS</jta-data-source>
-
+        <jta-data-source>java:/jdbc/MyDS</jta-data-source>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <!-- Auto-generate schema: create / drop-and-create / update / validate -->
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <!-- (Optional) show SQL for debugging -->
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
     </persistence-unit>
 </persistence>

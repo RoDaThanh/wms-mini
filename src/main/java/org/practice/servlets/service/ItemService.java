@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Stateless
 public class ItemService {
@@ -14,20 +15,25 @@ public class ItemService {
     @PersistenceContext(unitName = "elmsPU")
     private EntityManager em;
 
-    private List<Item> itemsMock = new ArrayList<>();
-
-
-    public Item addItem(String sku, String name) {
+    public void addItem(String sku, String name) {
         Item item = new Item();
         item.setSKU(sku);
         item.setName(name);
-//        em.persist(item);
-        itemsMock.add(item);
-        return item;
+        em.persist(item);
     }
 
     public List<Item> findAll() {
-        return itemsMock;
-//        return em.createQuery("SELECT i FROM Item i", Item.class).getResultList();
+        return em.createQuery("SELECT i FROM Item i", Item.class).getResultList();
+    }
+
+    public Item getItemById(Long id) {
+        Item item = new Item();
+
+        if (Objects.nonNull(id) && id == 1) {
+            item.setSKU("mockSKU");
+            item.setName("mockName");
+            return item;
+        }
+        return null;
     }
 }

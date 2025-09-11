@@ -13,14 +13,27 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <servlet>
+        <servlet-name>
+            javax.ws.rs.core.Application
+        </servlet-name>
+    </servlet>
+
     <servlet-mapping>
         <servlet-name>Faces Servlet</servlet-name>
         <url-pattern>*.xhtml</url-pattern>
     </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>
+            javax.ws.rs.core.Application
+        </servlet-name>
+        <url-pattern>/webapi/*</url-pattern>
+    </servlet-mapping>
+
     <!-- Optional: welcome page -->
     <welcome-file-list>
-        <welcome-file>pages/item.xhtml</welcome-file>
+        <welcome-file>pages/items.xhtml</welcome-file>
     </welcome-file-list>
 
 </web-app>
