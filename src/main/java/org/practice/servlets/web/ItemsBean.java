@@ -12,6 +12,8 @@ import java.util.List;
 @RequestScoped
 public class ItemsBean {
 
+    private Item item = new Item();
+
     @EJB
     private ItemService itemService;
 
@@ -21,5 +23,13 @@ public class ItemsBean {
 
     public String viewDetails(Long itemId) {
         return "item_detail.xhtml?faces-redirect=true&id=" + itemId;
+    }
+
+    public void addItem() {
+        itemService.addItem(item);
+    }
+
+    public Item getItem() {
+       return this.item;
     }
 }

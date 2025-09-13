@@ -1,17 +1,57 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 <h:head><title>Item Management</title></h:head>
 <h:body>
-    <h:form>
+    <!-- add item   -->
+    <h:form id="itermForm">
+        <p:commandButton value="Add Item"
+                         icon="pi pi-plus"
+                         oncomplete="PF('dlg').show();"
+                         process="@this" update=":itermForm:dlgPanel" />
+
+        <p:dialog header="Add Item" widgetVar="dlg" modal="true" resizable="false">
+            <h:panelGrid id="dlgPanel" columns="2" cellpadding="5">
+                <h:outputText value="SKU:" />
+                <p:inputText value="#{itemsBean.item.SKU}" />
+
+                <h:outputText value="Name:" />
+                <p:inputText value="#{itemsBean.item.name}" />
+
+                <h:outputText value="Quantity:" />
+                <p:inputText value="#{itemsBean.item.quantity}" />
+
+                <h:outputText value="Location:" />
+                <p:inputText value="#{itemsBean.item.location}" />
+
+                <h:outputText value="Price:" />
+                <p:inputText value="#{itemsBean.item.price}" />
+            </h:panelGrid>
+
+            <f:facet name="footer">
+                <p:commandButton value="Save"
+                                 actionListener="#{itemsBean.addItem}"
+                                 update=":itemsTable"
+                                 oncomplete="PF('dlg').hide();" />
+
+                <p:commandButton value="Cancel" onclick="PF('dlg').hide()" type="button"/>
+            </f:facet>
+        </p:dialog>
+    </h:form>
+
+    <h:form id="itemsTable">
         <p:dataTable value="#{itemsBean.items}" var="item">
             <p:column headerText="ID">
                 <h:outputText value="#{item.id}" />
             </p:column>
-            <p:column headerText="ID">
+            <p:column headerText="SKU">
                 <h:outputText value="#{item.SKU}" />
             </p:column>
-            <p:column headerText="ID">
+            <p:column headerText="NAME">
+                <h:outputText value="#{item.name}" />
+            </p:column>
+            <p:column headerText="PRICE">
                 <h:outputText value="#{item.name}" />
             </p:column>
             <p:column headerText="Action">

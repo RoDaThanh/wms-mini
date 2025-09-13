@@ -5,7 +5,6 @@ import org.practice.servlets.entity.Item;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,10 +14,7 @@ public class ItemService {
     @PersistenceContext(unitName = "elmsPU")
     private EntityManager em;
 
-    public void addItem(String sku, String name) {
-        Item item = new Item();
-        item.setSKU(sku);
-        item.setName(name);
+    public void addItem(Item item) {
         em.persist(item);
     }
 
@@ -27,13 +23,6 @@ public class ItemService {
     }
 
     public Item getItemById(Long id) {
-        Item item = new Item();
-
-        if (Objects.nonNull(id) && id == 1) {
-            item.setSKU("mockSKU");
-            item.setName("mockName");
-            return item;
-        }
-        return null;
+        return em.find(Item.class, id);
     }
 }
