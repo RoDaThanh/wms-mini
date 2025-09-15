@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+                  xmlns:soap="http://soap.servlets.practice.org/">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <soap:getItemById>
+            <arg0>3</arg0>
+        </soap:getItemById>
+    </soapenv:Body>
+</soapenv:Envelope>
+
+<!-- test soap-->
+<!--curl -X POST http://localhost:8080/warehouse-automation/ItermServiceSoapImpl \-->
+<!-- -H "Content-Type: text/xml;charset=UTF-8" \-->
+<!-- -d @request.xm-->
