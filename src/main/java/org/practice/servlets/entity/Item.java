@@ -12,11 +12,19 @@ public class Item implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
+    @Column(unique = true)
     private String SKU;
+
+    @Column(nullable = false)
     private String name;
+
     private String quantity;
+
     private String location;
+
     private double price;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
