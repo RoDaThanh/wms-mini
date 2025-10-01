@@ -14,10 +14,10 @@
         <p:dialog header="Add Item" widgetVar="dlg" modal="true" resizable="false">
             <h:panelGrid id="dlgPanel" columns="2" cellpadding="5">
                 <h:outputText value="SKU:" />
-                <p:inputText value="#{itemsBean.item.SKU}" />
+                <p:inputText value="#{itemsBean.item.SKU}" required="true" />
 
                 <h:outputText value="Name:" />
-                <p:inputText value="#{itemsBean.item.name}" />
+                <p:inputText value="#{itemsBean.item.name}" required="true" />
 
                 <h:outputText value="Quantity:" />
                 <p:inputText value="#{itemsBean.item.quantity}" />
@@ -32,6 +32,7 @@
             <f:facet name="footer">
                 <p:commandButton value="Save"
                                  actionListener="#{itemsBean.addItem}"
+                                 validateClient="true"
                                  update=":itemsTable"
                                  oncomplete="PF('dlg').hide();" />
 
