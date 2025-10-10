@@ -2,6 +2,7 @@ package org.practice.servlets.web;
 
 import org.practice.servlets.entity.Item;
 import org.practice.servlets.service.ItemService;
+import org.practice.servlets.socket.AsyncServer;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -28,6 +29,9 @@ public class ItemsBean {
     @EJB
     private ItemService itemService;
 
+    @EJB
+    private AsyncServer asyncServer;
+
     public List<Item> getItems() {
         return itemService.findAll();
     }
@@ -41,6 +45,7 @@ public class ItemsBean {
         try {
             itemService.addItem(item);
             message = message.concat(" Added successfully!");
+            asyncServer.broadcast("PrimeFaces.ab({s:'ws-push',u:'itemsTable'});");
         } catch (RuntimeException e) {
             message = message.concat(" Added failed! due to: " + e.getMessage());
         }
@@ -49,6 +54,6 @@ public class ItemsBean {
     }
 
     public Item getItem() {
-       return this.item;
+        return this.item;
     }
 }
