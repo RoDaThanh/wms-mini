@@ -1,5 +1,5 @@
 const wsUrl = "ws://" + location.host + "/warehouse-automation/asyncServer";
-let websocket;
+window.websocket = null;
 
     function connectWebSocket() {
         websocket = new WebSocket(wsUrl);
@@ -9,11 +9,22 @@ let websocket;
         };
 
         websocket.onmessage = function(event) {
-            const command = event.data;
-            console.log("Received command: " + command);
+            const jsonMessage = event.data;
+            console.log("Received JSON: " + jsonMessage);
 
             try {
-                eval(command);
+                const message = JSON.parse(jsonMessage);
+               switch (message.type) {
+                   case 'ITEM_ADDED':
+                       handleItemAdded();
+                       break;
+                   case 'VIEWING_UPDATE':
+                       handleViewingUpdate(message.data);
+                       break;
+                   // Add more cases for other features (e.g., ITEM_DELETED, PRICE_CHANGED)
+                   default:
+                       console.warn("Unknown message type:", message.type);
+               }
             } catch (e) {
                 console.error("Error executing command: " + e);
             }
@@ -29,5 +40,9 @@ let websocket;
         };
 
     }
+     function handleItemAdded() {
+            const refreshCommand = "PrimeFaces.ab({s:'ws-push',u:'itemsTable'});";
+            eval(refreshCommand);
+     }
 
 connectWebSocket();

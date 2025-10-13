@@ -1,16 +1,20 @@
 package org.practice.servlets.socket;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.ejb.Singleton;
 import javax.websocket.*;
 import javax.websocket.server.ServerEndpoint;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 @ServerEndpoint(value = "/asyncServer")
 public class AsyncServer {
     private final List<Session> peers = Collections.synchronizedList(new ArrayList<>());
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final Map<String, Set<String>> viewingTracker = new ConcurrentHashMap<>(); // Key: Item ID, Value: Set of Session IDs
 
     @OnOpen
     public void onOpen(Session session) {
@@ -29,6 +33,49 @@ public class AsyncServer {
 
     public void broadcast(String message) {
         peers.stream().filter(Session::isOpen).forEachOrdered(p -> p.getAsyncRemote().sendText(message));
+    }
+
+    @OnMessage
+    public void OnMessage(String jsonMessage, Session peer) {
+        try {
+            Message messageObject = OBJECT_MAPPER.readValue(jsonMessage, Message.class);
+            if (messageObject.getData() instanceof Map) {
+                Map<?, ?> dataMap = (Map<?, ?>) messageObject.getData();
+                String itemId = (String) dataMap.get("itemId");
+
+                if (itemId != null) {
+                    switch (messageObject.getType()) {
+                        case START_VIEWING:
+                            viewingTracker.computeIfAbsent(itemId, k -> Collections.synchronizedSet(new HashSet<>())).add(peer.getId());
+                            break;
+                        case STOP_VIEWING:
+                            Set<String> viewers = viewingTracker.get(itemId);
+                            if (viewers != null) {
+                                viewers.remove(peer.getId());
+                                if (viewers.isEmpty()) {
+                                    viewingTracker.remove(itemId);
+                                }
+                            }
+                            break;
+                        default:
+                            return;
+                    }
+                    broadcastViewingStatus(itemId);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error processing OnMessage: " + e.getMessage());
+        }
+    }
+
+    private void broadcastViewingStatus(String itemId) throws JsonProcessingException {
+        int viewerCount = viewingTracker.getOrDefault(itemId, Collections.emptySet()).size();
+        Map<String, Object> dataPayload = new HashMap<>();
+        dataPayload.put("itemId", itemId);
+        dataPayload.put("viewerCount", viewerCount);
+        Message message = new Message(Message.MessageType.VIEWING_UPDATE, dataPayload);
+        String jsonMessage = OBJECT_MAPPER.writeValueAsString(message);
+        broadcast(jsonMessage);
     }
 }
 

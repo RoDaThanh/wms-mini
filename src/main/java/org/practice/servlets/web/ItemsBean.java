@@ -1,8 +1,11 @@
 package org.practice.servlets.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.practice.servlets.entity.Item;
 import org.practice.servlets.service.ItemService;
 import org.practice.servlets.socket.AsyncServer;
+import org.practice.servlets.socket.Message;
 
 import javax.annotation.Resource;
 import javax.ejb.EJB;
@@ -32,6 +35,8 @@ public class ItemsBean {
     @EJB
     private AsyncServer asyncServer;
 
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     public List<Item> getItems() {
         return itemService.findAll();
     }
@@ -45,9 +50,12 @@ public class ItemsBean {
         try {
             itemService.addItem(item);
             message = message.concat(" Added successfully!");
-            asyncServer.broadcast("PrimeFaces.ab({s:'ws-push',u:'itemsTable'});");
+            String jsonMessage = OBJECT_MAPPER.writeValueAsString(new Message(Message.MessageType.ITEM_ADDED));
+            asyncServer.broadcast(jsonMessage);
         } catch (RuntimeException e) {
             message = message.concat(" Added failed! due to: " + e.getMessage());
+        } catch (JsonProcessingException ex) {
+            System.err.println(ex.getMessage());
         }
 
         jmsContext.createProducer().send((Destination) itemQueue, message);

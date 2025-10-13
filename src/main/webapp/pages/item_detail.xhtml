@@ -1,7 +1,61 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:p="http://primefaces.org/ui">
-<h:head><title>Item Management</title></h:head>
+<h:head>
+    <title>Item Management</title>
+    <h:outputScript name="websocket-handler.js" library="js" />
+    <script type="text/javascript">
+        const currentItemId = '#{itemBean.item.id}';
+        window.onload = function() {
+            // Wait for the window.websocket to establish the connection before sending.
+            // A simple timeout often works, but checking readyState is cleaner.
+
+            function sendViewingMessage() {
+                 if (window.websocket &amp;&amp; window.websocket.readyState === WebSocket.OPEN) {
+                    // Send message that this item is being viewed
+                    const viewingMessage = JSON.stringify({
+                        type: "START_VIEWING",
+                        data: { itemId: currentItemId }
+                    });
+                    window.websocket.send(viewingMessage);
+                } else {
+                    // Wait and retry if the connection isn't open yet
+                    setTimeout(sendViewingMessage, 500);
+                }
+            }
+            sendViewingMessage();
+
+            // Send a message when the user leaves the page
+            window.onbeforeunload = function() {
+                if (window.websocket &amp;&amp; window.websocket.readyState === WebSocket.OPEN) {
+                    const stopViewingMessage = JSON.stringify({
+                        type: "STOP_VIEWING",
+                        data: { itemId: currentItemId }
+                    });
+                    window.websocket.send(stopViewingMessage);
+                }
+            };
+        };
+
+        window.handleViewingUpdate = function(data) {
+            const viewerCountElement = document.getElementById('viewerCount');
+
+            if (viewerCountElement) {
+                if (data.itemId === currentItemId) {
+                    const viewerCount = data.viewerCount;
+                     if (viewerCount > 1) {
+                         viewerCountElement.textContent = "Other is also viewing this item.";
+                     } else {
+                         viewerCountElement.textContent = "";
+                     }
+                }
+            } else {
+                console.log(`Received silent VIEWING_UPDATE for Item ${data.itemId}.`);
+            }
+        };
+    </script>
+</h:head>
+
 <h:body>
     <h2>Item Details</h2>
     <h:panelGrid columns="2" cellpadding="5">
@@ -30,5 +84,6 @@
     <h:form>
         <h:commandButton value="Back" action="items.xhtml?faces-redirect=true"/>
     </h:form>
+    <p id="viewerCount" style="color: orange; font-weight: bold;"></p>
 </h:body>
 </html>
