@@ -14,10 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AsyncServer {
     private final List<Session> peers = Collections.synchronizedList(new ArrayList<>());
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final Map<String, Set<String>> viewingTracker = new ConcurrentHashMap<>(); // Key: Item ID, Value: Set of Session IDs
+    private final Map<String, Map<String, String>> viewingTracker = new ConcurrentHashMap<>();
 
     @OnOpen
     public void onOpen(Session session) {
+        String guestId = "Guest-" + UUID.randomUUID().toString().substring(0, 5);
+        session.getUserProperties().put("username", guestId);
         peers.add(session);
     }
 
@@ -46,15 +48,15 @@ public class AsyncServer {
                 if (itemId != null) {
                     switch (messageObject.getType()) {
                         case START_VIEWING:
-                            viewingTracker.computeIfAbsent(itemId, k -> Collections.synchronizedSet(new HashSet<>())).add(peer.getId());
+                            viewingTracker.computeIfAbsent(itemId, k ->
+                                    Collections.synchronizedMap(new HashMap<>()))
+                                    .put(peer.getId(), (String) peer.getUserProperties().get("username"));
                             break;
                         case STOP_VIEWING:
-                            Set<String> viewers = viewingTracker.get(itemId);
-                            if (viewers != null) {
-                                viewers.remove(peer.getId());
-                                if (viewers.isEmpty()) {
-                                    viewingTracker.remove(itemId);
-                                }
+                            Set<String> viewers = viewingTracker.get(itemId).keySet();
+                            viewers.remove(peer.getId());
+                            if (viewers.isEmpty()) {
+                                viewingTracker.remove(itemId);
                             }
                             break;
                         default:
@@ -69,13 +71,18 @@ public class AsyncServer {
     }
 
     private void broadcastViewingStatus(String itemId) throws JsonProcessingException {
-        int viewerCount = viewingTracker.getOrDefault(itemId, Collections.emptySet()).size();
+        Map<String, String> viewerMap = viewingTracker.getOrDefault(itemId, Collections.emptyMap());
+        List<String> viewers = new ArrayList<>(viewerMap.values());
+
         Map<String, Object> dataPayload = new HashMap<>();
         dataPayload.put("itemId", itemId);
-        dataPayload.put("viewerCount", viewerCount);
+        dataPayload.put("viewers", viewers);
         Message message = new Message(Message.MessageType.VIEWING_UPDATE, dataPayload);
         String jsonMessage = OBJECT_MAPPER.writeValueAsString(message);
-        broadcast(jsonMessage);
+
+        peers.stream().filter(p -> viewerMap.containsKey(p.getId())).forEach(
+                p -> p.getAsyncRemote().sendText(jsonMessage)
+        );
     }
 }
 

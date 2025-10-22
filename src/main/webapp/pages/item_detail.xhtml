@@ -42,9 +42,9 @@
 
             if (viewerCountElement) {
                 if (data.itemId === currentItemId) {
-                    const viewerCount = data.viewerCount;
-                     if (viewerCount > 1) {
-                         viewerCountElement.textContent = "Other is also viewing this item.";
+                    const viewers = Array.isArray(data.viewers) ? data.viewers.join(" ") : "";
+                     if (data.viewers &amp;&amp; data.viewers.length > 1) {
+                         viewerCountElement.textContent = viewers + " are also viewing this item.";
                      } else {
                          viewerCountElement.textContent = "";
                      }
