@@ -14,12 +14,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AsyncServer {
     private final List<Session> peers = Collections.synchronizedList(new ArrayList<>());
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final Map<String, Map<String, String>> viewingTracker = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, ViewerInfo>> viewingTracker = new ConcurrentHashMap<>();
+    List<String> COLORS = Arrays.asList("#3B82F6", "#F97316", "#10B981", "#EF4444", "#8B5CF6");
+
 
     @OnOpen
     public void onOpen(Session session) {
         String guestId = "Guest-" + UUID.randomUUID().toString().substring(0, 5);
+        String color = COLORS.get(new Random().nextInt(COLORS.size()));
         session.getUserProperties().put("username", guestId);
+        session.getUserProperties().put("color", color);
         peers.add(session);
     }
 
@@ -50,7 +54,7 @@ public class AsyncServer {
                         case START_VIEWING:
                             viewingTracker.computeIfAbsent(itemId, k ->
                                     Collections.synchronizedMap(new HashMap<>()))
-                                    .put(peer.getId(), (String) peer.getUserProperties().get("username"));
+                                    .put(peer.getId(), buildViewerInfo(peer));
                             break;
                         case STOP_VIEWING:
                             Set<String> viewers = viewingTracker.get(itemId).keySet();
@@ -70,9 +74,14 @@ public class AsyncServer {
         }
     }
 
+    private ViewerInfo buildViewerInfo(Session session) {
+        return new ViewerInfo((String) session.getUserProperties().get("username"),
+                (String) session.getUserProperties().get("color"));
+    }
+
     private void broadcastViewingStatus(String itemId) throws JsonProcessingException {
-        Map<String, String> viewerMap = viewingTracker.getOrDefault(itemId, Collections.emptyMap());
-        List<String> viewers = new ArrayList<>(viewerMap.values());
+        Map<String, ViewerInfo> viewerMap = viewingTracker.getOrDefault(itemId, Collections.emptyMap());
+        List<ViewerInfo> viewers = new ArrayList<>(viewerMap.values());
 
         Map<String, Object> dataPayload = new HashMap<>();
         dataPayload.put("itemId", itemId);
